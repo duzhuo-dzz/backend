@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--@author 杨金刚-->
+<!--@date 2020/8/9 9:22 -->
+<mapper namespace="com.its.demo.dao.RoleMapper">
+
+    <resultMap id="RoleResultMap" type="com.its.demo.domain.RoleDO">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
+        <result property="descriptionID" column="description" jdbcType="BIGINT"/>
+        <result property="gmtCreate" column="gmt_create" jdbcType="TIMESTAMP"/>
+        <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="RoleVOResultMap" type="com.its.demo.domain.RoleVO">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
+        <result property="descriptionID" column="description" jdbcType="VARCHAR"/>
+        <result property="Description" column="role_description" jdbcType="BIGINT"/>
+        <result property="gmtCreate" column="gmt_create" jdbcType="TIMESTAMP"/>
+        <result property="gmtModified" column="gmt_modified" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="listRoleVOs" resultMap="RoleVOResultMap">
+        SELECT id, role, description,role_description, gmt_create, gmt_modified
+        FROM sys_role
+    </select>
+
+    <select id="listRoleVOsByKeyword" resultMap="RoleVOResultMap">
+         SELECT id, role, description, gmt_create, gmt_modified
+        FROM sys_role where role like concat('%', concat(#{keyword}, '%'))
+    </select>
+
+    <select id="listAllRole" resultMap="RoleVOResultMap">
+        SELECT id, role, gmt_create, gmt_modified
+        FROM sys_role
+    </select>
+
+    <insert id="insertRole" parameterType="com.its.demo.domain.RoleDO">
+        INSERT INTO sys_role (role, description,gmt_create)
+        VALUES (#{role}, #{description},now())
+    </insert>
+
+
+    <update id="updateRole" parameterType="com.its.demo.domain.RoleDO">
+        UPDATE sys_role
+        SET role = #{role},
+               description = #{description},
+            gmt_modified = now()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteRole" parameterType="Long">
+        DELETE
+        FROM sys_role
+        WHERE id = #{id}
+    </delete>
+
+    <select id="countOccupiedRole" resultType="Integer">
+        SELECT count(*)
+        FROM sys_role m
+        WHERE EXISTS(select 1 from sys_user where role_id = m.id and m.id = #{id})
+              OR EXISTS(select 1 from sys_role where id = m.description and m.description = #{id})
+    </select>
+
+    <select id="countRoleByName" resultType="Integer">
+        SELECT count(*)
+        FROM sys_role where role=#{role}
+    </select>
+
+    <select id="countRoleByNameWithId" resultType="Integer">
+        SELECT count(*)
+        FROM sys_role where role = #{role} and id  &lt;&gt; #{id}
+    </select>
+
+    <select id="ListRolesByKeyword" resultMap="RoleResultMap">
+        SELECT id, role, gmt_create, gmt_modified
+        FROM sys_role where role like concat('%', concat(#{keyword}, '%'))
+    </select>
+</mapper>
